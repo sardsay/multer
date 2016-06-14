@@ -21,7 +21,7 @@ function Multer (options) {
   this.fileFilter = options.fileFilter || allowAll
 }
 
-Multer.prototype._makeMiddleware = function (fields, fileStrategy) {
+Multer.prototype._makeMiddleware = function (fields, fileStrategy, id) {
   function setup () {
     var fileFilter = this.fileFilter
     var filesLeft = Object.create(null)
@@ -34,13 +34,13 @@ Multer.prototype._makeMiddleware = function (fields, fileStrategy) {
       }
     })
 
-    function wrappedFileFilter (req, file, cb) {
+    function wrappedFileFilter (req, file, id, cb) {
       if ((filesLeft[file.fieldname] || 0) <= 0) {
         return cb(makeError('LIMIT_UNEXPECTED_FILE', file.fieldname))
       }
 
       filesLeft[file.fieldname] -= 1
-      fileFilter(req, file, cb)
+      fileFilter(req, file, id, cb)
     }
 
     return {
