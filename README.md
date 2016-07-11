@@ -4,7 +4,7 @@ Multer is a node.js middleware for handling `multipart/form-data`, which is prim
 on top of [busboy](https://github.com/mscdex/busboy) for maximum efficiency.
 
 **NOTE**: Multer will not process any form which is not multipart (`multipart/form-data`).
-
+*** NOTE *** Modify for my project.
 
 
 ## Usage
@@ -44,6 +44,7 @@ var upload = multer({
   }
 }).fields([{name:'photos', maxCount: 1}]);
 
+Example
 
 app.post('/photos/upload', function (req, res, next) {
   // parse value if you want by id
@@ -64,7 +65,7 @@ Each file contains the following information:
 Key | Description | Note
 --- | --- | ---
 `fieldname` | Field name specified in the form |
-`originalname` | Name of the file on the user's computer |
+`originalname` | Name of the file on computer |
 `encoding` | Encoding type of the file |
 `mimetype` | Mime type of the file |
 `size` | Size of the file in bytes |
@@ -145,10 +146,10 @@ The disk storage engine gives you full control on storing files to disk.
 
 ```javascript
 var storage = multer.diskStorage({
-  destination: function (req, file, id, cb) {
+  destination: function (req, file, value, cb) {
     cb(null, '/tmp/my-uploads')
   },
-  filename: function (req, file, id, cb) {
+  filename: function (req, file, value, cb) {
     cb(null, file.fieldname + '-' + Date.now())
   }
 })
@@ -222,7 +223,7 @@ Set this to a function to control which files should be uploaded and which
 should be skipped. The function should look like this:
 
 ```javascript
-function fileFilter (req, file, cb) {
+function fileFilter (req, file, value, cb) {
 
   // The function should call `cb` with a boolean
   // to indicate if the file should be accepted
