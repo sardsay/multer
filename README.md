@@ -5,15 +5,11 @@ on top of [busboy](https://github.com/mscdex/busboy) for maximum efficiency.
 
 **NOTE**: Multer will not process any form which is not multipart (`multipart/form-data`).
 
-## Installation
 
-```sh
-$ npm install --save multer
-```
 
 ## Usage
 
-Multer adds a `body` object and a `file` or `files` object to the `request` object. The `body` object contains the values of the text fields of the form, the `file` or `files` object contains the files uploaded via the form.
+Multer work with parse parameter.
 
 Basic usage example:
 
@@ -23,41 +19,42 @@ var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
 
 var app = express()
+var storage = multer.diskStorage({
+  destination: function (req, file, value, callback) {
+  
+      //callback(null, pathFile);
+  },
+  filename: function (req, file, value, callback) {
+    
+    //callback(null, filename);
+  }
+});
+var upload = multer({ 
+  storage : storage,
+  fileFilter: function(req, file, value, callback){
+    
+    // To reject this file pass `false`, like so: 
+      // callback(null, false)
+     
+    // To accept the file pass `true`, like so: 
+      callback(null, true)
+     
+    // You can always pass an error if something goes wrong: 
+      // callback(new Error('I don\'t have a clue!'))
+  }
+}).fields([{name:'photos', maxCount: 1}]);
 
-app.post('/profile', upload.single('avatar'), function (req, res, next) {
-  // req.file is the `avatar` file
-  // req.body will hold the text fields, if there were any
+Example
+
+app.post('/photos/upload', function (req, res, next) {
+  // parse value if you want by id
+  upload(req,res,id,function(err) {
+    // req.files is array of `photos` files
+    // req.body will contain the text fields, if there were any
+  })
+  
 })
 
-app.post('/photos/upload', upload.array('photos', 12), function (req, res, next) {
-  // req.files is array of `photos` files
-  // req.body will contain the text fields, if there were any
-})
-
-var cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'gallery', maxCount: 8 }])
-app.post('/cool-profile', cpUpload, function (req, res, next) {
-  // req.files is an object (String -> Array) where fieldname is the key, and the value is array of files
-  //
-  // e.g.
-  //  req.files['avatar'][0] -> File
-  //  req.files['gallery'] -> Array
-  //
-  // req.body will contain the text fields, if there were any
-})
-```
-
-In case you need to handle a text-only multipart form, you can use any of the multer methods (`.single()`, `.array()`, `fields()`). Here is an example using `.array()`:
-
-```javascript
-var express = require('express')
-var app = express()
-var multer  = require('multer')
-var upload = multer()
-
-app.post('/profile', upload.array(), function (req, res, next) {
-  // req.body contains the text fields
-})
-```
 
 ## API
 
@@ -149,10 +146,10 @@ The disk storage engine gives you full control on storing files to disk.
 
 ```javascript
 var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (req, file, value, cb) {
     cb(null, '/tmp/my-uploads')
   },
-  filename: function (req, file, cb) {
+  filename: function (req, file, value, cb) {
     cb(null, file.fieldname + '-' + Date.now())
   }
 })
@@ -226,7 +223,7 @@ Set this to a function to control which files should be uploaded and which
 should be skipped. The function should look like this:
 
 ```javascript
-function fileFilter (req, file, cb) {
+function fileFilter (req, file, value, cb) {
 
   // The function should call `cb` with a boolean
   // to indicate if the file should be accepted
