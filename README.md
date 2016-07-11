@@ -44,7 +44,6 @@ var upload = multer({
   }
 }).fields([{name:'photos', maxCount: 1}]);
 
-Example
 
 app.post('/photos/upload', function (req, res, next) {
   // parse value if you want by id
@@ -146,10 +145,10 @@ The disk storage engine gives you full control on storing files to disk.
 
 ```javascript
 var storage = multer.diskStorage({
-  destination: function (req, file, value, cb) {
+  destination: function (req, file, id, cb) {
     cb(null, '/tmp/my-uploads')
   },
-  filename: function (req, file, value, cb) {
+  filename: function (req, file, id, cb) {
     cb(null, file.fieldname + '-' + Date.now())
   }
 })
@@ -223,7 +222,7 @@ Set this to a function to control which files should be uploaded and which
 should be skipped. The function should look like this:
 
 ```javascript
-function fileFilter (req, file, value, cb) {
+function fileFilter (req, file, cb) {
 
   // The function should call `cb` with a boolean
   // to indicate if the file should be accepted
